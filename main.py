@@ -5,14 +5,15 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, Message
 
 # ==================== CONFIGURATION ====================
+# Aapko sirf yeh 2 cheezein change karni hain:
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "YOUR_BOT_TOKEN_HERE")
-API_ID = int(os.environ.get("API_ID", "1234567"))
-API_HASH = os.environ.get("API_HASH", "YOUR_API_HASH")
+ADMIN_ID = int(os.environ.get("ADMIN_ID", 1234567890)) # Apni Telegram Numeric Admin ID yahan daalein
 
-# Admin Telegram ID (Jaha payment approvals jayenge)
-ADMIN_ID = 1234567890 
+# API ID aur Hash fixed hain, aapko isko chedne ki zaroorat nahi hai:
+API_ID = 6
+API_HASH = "eb06d4abfb49dc3eeb1aeb98ae0f581e"
 
-# Hardcoded Business Config (Bot delete hone par bhi safe)
+# Hardcoded Business Config (Bot delete hone par bhi sab safe rahega)
 BOT_CONFIG = {
     "product_name": "Premium Digital Pass",
     "product_price": "₹199",
@@ -66,7 +67,6 @@ async def screenshot_handler(client: Client, message: Message):
     if user_states.get(user_id) == "WAITING_SCREENSHOT":
         user_states[user_id] = None # Reset state
         
-        # Admin Notification Keyboard
         admin_keyboard = InlineKeyboardMarkup([
             [
                 InlineKeyboardButton("✅ Accept", callback_data=f"approve_{user_id}"),
@@ -74,7 +74,6 @@ async def screenshot_handler(client: Client, message: Message):
             ]
         ])
         
-        # Send photo to Admin
         await client.send_photo(
             chat_id=ADMIN_ID,
             photo=message.photo.file_id,
@@ -97,7 +96,6 @@ async def approve_payment(client: Client, callback: CallbackQuery):
         
     target_user_id = int(callback.data.split("_")[1])
     
-    # Notify User with Link
     try:
         await client.send_message(
             chat_id=target_user_id,
@@ -122,7 +120,7 @@ async def reject_payment(client: Client, callback: CallbackQuery):
     try:
         await client.send_message(
             chat_id=target_user_id,
-            text="❌ **Payment Verification Failed.** Kripya correct screenshot bhein ya Support par baat karein."
+            text="❌ **Payment Verification Failed.** Kripya correct screenshot bhejein ya Support par baat karein."
         )
         await callback.edit_message_caption(
             caption=callback.message.caption + "\n\n❌ **Rejected by Admin**"
@@ -141,11 +139,10 @@ async def admin_panel(client: Client, message: Message):
         f"• **Price:** {BOT_CONFIG['product_price']}\n"
         f"• **UPI ID:** {BOT_CONFIG['upi_id']}\n"
         f"• **Link:** {BOT_CONFIG['product_link']}\n\n"
-        "ℹ️ *Note: Configuration code ke androod hardcoded hai.*"
+        "ℹ️ *Note: Configuration code ke andar hardcoded hai.*"
     )
     await message.reply_text(text)
 
-# Web server port configuration for Render Web Service
 async def web_server():
     routes = web.RouteTableDef()
     @routes.get("/")
@@ -169,4 +166,3 @@ async def main():
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())
-  
