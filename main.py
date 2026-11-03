@@ -5,15 +5,12 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, Message
 
 # ==================== CONFIGURATION ====================
-# Aapko sirf yeh 2 cheezein change karni hain:
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "YOUR_BOT_TOKEN_HERE")
-ADMIN_ID = int(os.environ.get("ADMIN_ID", 1234567890)) # Apni Telegram Numeric Admin ID yahan daalein
+ADMIN_ID = int(os.environ.get("ADMIN_ID", 1234567890))
 
-# API ID aur Hash fixed hain, aapko isko chedne ki zaroorat nahi hai:
 API_ID = 6
 API_HASH = "eb06d4abfb49dc3eeb1aeb98ae0f581e"
 
-# Hardcoded Business Config (Bot delete hone par bhi sab safe rahega)
 BOT_CONFIG = {
     "product_name": "Premium Digital Pass",
     "product_price": "₹199",
@@ -25,8 +22,6 @@ BOT_CONFIG = {
 # =======================================================
 
 app = Client("BusinessBot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
-
-# User state tracking for screenshot upload
 user_states = {}
 
 @app.on_message(filters.command("start") & filters.private)
@@ -65,7 +60,7 @@ async def buy_now_handler(client: Client, callback: CallbackQuery):
 async def screenshot_handler(client: Client, message: Message):
     user_id = message.from_user.id
     if user_states.get(user_id) == "WAITING_SCREENSHOT":
-        user_states[user_id] = None # Reset state
+        user_states[user_id] = None 
         
         admin_keyboard = InlineKeyboardMarkup([
             [
@@ -153,16 +148,3 @@ async def web_server():
     app_web.add_routes(routes)
     return app_web
 
-async def main():
-    await app.start()
-    runner = web.AppRunner(await web_server())
-    await runner.setup()
-    port = int(os.environ.get("PORT", 8080))
-    site = web.TCPSite(runner, "0.0.0.0", port)
-    await site.start()
-    print("Bot and Web Server started successfully!")
-    await asyncio.Event().wait()
-
-if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
